@@ -1,13 +1,12 @@
-import array
+import string
+
 token = "7529239912:AAEFQ6sbf75TqngCv5amCEa1NEL2qP7x0Nk"
 
-vachanamrut = "This is the vachanamrut."
+vachanamrut = "This is the vachanamrut. Pagh vagha."
 
-definations = {"vagha":"the term pagh or pagdi generally refers to a turban, a headdress worn by men, particularly in certain regions and on special occasions",
-               "pagh":"mojadi typically refers to traditional Indian shoes, often embellished and worn by men, particularly during weddings and other festive occasions",
-               "mojadi":"the clothing, or attire, worn by deities, particularly images or statues of deities, like those of Lord Krishna or Swaminarayan, during worship or festivals",
-               "khesh":"Khesh refers to a type of handwoven fabric, often used in traditional Indian clothing like the dhoti or kurta"
-            }
+vachanamrut_definations = []
+
+definations = {}
 
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, ContextTypes, MessageHandler, filters
@@ -27,12 +26,18 @@ def get_secondary_keyboard():
     ]
     return InlineKeyboardMarkup(keyboard)
 
-
 # Second set of buttons
 def get_third_keyboard():
     keyboard = []
-    for key in definations:
-        keyboard.append([InlineKeyboardButton(key, callback_data=key)])
+    row = []
+    for i,key in enumerate(vachanamrut_definations):
+        row.append(InlineKeyboardButton(key, callback_data=key))
+        if ((i+1) % 2) == 0:
+            keyboard.append(row)
+            row = []
+        elif (i+1 == len(vachanamrut_definations)):
+            keyboard.append(row)
+
     
     keyboard.append([InlineKeyboardButton("<<back", callback_data='back')])
     return InlineKeyboardMarkup(keyboard)
@@ -77,6 +82,17 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         await update.message.reply_text("Sorry, no definition found for that word.")
 
+
+
+with open("definations.txt","r") as file:
+    for line in file:
+        line = line.split(":")
+        definations[line[0].lower()] = line[1]
+
+for word in vachanamrut.split():
+    word = word.translate(str.maketrans('', '', string.punctuation)).lower()
+    if word in definations:
+        vachanamrut_definations.append(word)
 
 # Bot setup
 app = Application.builder().token(token).build()
