@@ -2,3 +2,11 @@ pagh:the term pagh or pagdi generally refers to a turban, a headdress worn by me
 mojadi:mojadi typically refers to traditional Indian shoes, often embellished and worn by men, particularly during weddings and other festive occasions
 vagha:the clothing, or attire, worn by deities, particularly images or statues of deities, like those of Lord Krishna or Swaminarayan, during worship or festivals
 khesh:Khesh refers to a type of handwoven fabric, often used in traditional Indian clothing like the dhoti or kurta
+pah:the term pagh or pagdi generally refers to a turban, a headdress worn by men, particularly in certain regions and on special occasions
+mjadi:mojadi typically refers to traditional Indian shoes, often embellished and worn by men, particularly during weddings and other festive occasions
+vgha:the clothing, or attire, worn by deities, particularly images or statues of deities, like those of Lord Krishna or Swaminarayan, during worship or festivals
+kesh:Khesh refers to a type of handwoven fabric, often used in traditional Indian clothing like the dhoti or kurta
+ph:the term pagh or pagdi generally refers to a turban, a headdress worn by men, particularly in certain regions and on special occasions
+ojadi:mojadi typically refers to traditional Indian shoes, often embellished and worn by men, particularly during weddings and other festive occasions
+gha:the clothing, or attire, worn by deities, particularly images or statues of deities, like those of Lord Krishna or Swaminarayan, during worship or festivals
+hesh:Khesh refers to a type of handwoven fabric, often used in traditional Indian clothing like the dhoti or kurta

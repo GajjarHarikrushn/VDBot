@@ -1,74 +1,71 @@
 import string
+import copy
 
 token = "7529239912:AAEFQ6sbf75TqngCv5amCEa1NEL2qP7x0Nk"
 
-vachanamrut = "This is the vachanamrut. Pagh vagha."
+vachanamrut = "This is the vachanamrut. Pagh vagha mojadi pah mjadi vgha kesh ph ojadi gha hesh."
 
 vachanamrut_definations = []
 
 definations = {}
 
+buttons = []
+
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, ContextTypes, MessageHandler, filters
 
-# First set of buttons
-def get_main_keyboard():
+
+def main_buttons():
     keyboard = [
         [InlineKeyboardButton("Definitions", callback_data='defination')]
     ]
     return InlineKeyboardMarkup(keyboard)
 
-# Second set of buttons
-def get_secondary_keyboard():
+
+def secondary_buttons():
     keyboard = [
         [InlineKeyboardButton("definations from this vachanamrut", callback_data='definations from this vachanamrut')],
         [InlineKeyboardButton("search any vachanamrut definations", callback_data='search any vachanamrut definations')]
     ]
     return InlineKeyboardMarkup(keyboard)
 
-# Second set of buttons
-def get_third_keyboard():
-    keyboard = []
-    row = []
-    for i,key in enumerate(vachanamrut_definations):
-        row.append(InlineKeyboardButton(key, callback_data=key))
-        if ((i+1) % 2) == 0:
-            keyboard.append(row)
-            row = []
-        elif (i+1 == len(vachanamrut_definations)):
-            keyboard.append(row)
 
-    
-    keyboard.append([InlineKeyboardButton("<<back", callback_data='back')])
+def defination_buttons(caller):
+    keyboard = []
+    if caller == "definations from this vachanamrut":
+        keyboard = copy.deepcopy(buttons[0])
+        keyboard.append([InlineKeyboardButton("<<back", callback_data='back'),InlineKeyboardButton("more>>", callback_data='more_0')])
+    else:
+        index = int(caller.split("_")[1])+1
+        if index < len(buttons):
+            keyboard = copy.deepcopy(buttons[index])
+            callback = f'more_{index+1}'
+
+            if index+1 < len(buttons):
+                keyboard.append([InlineKeyboardButton("<<back", callback_data='back'),InlineKeyboardButton("more>>", callback_data=callback)])
+            else:
+                keyboard.append([InlineKeyboardButton("<<back", callback_data='back')])
+        else:
+            keyboard.append([InlineKeyboardButton("<<back", callback_data='back')])
     return InlineKeyboardMarkup(keyboard)
 
 
-
-# /start command
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text(vachanamrut, reply_markup=get_main_keyboard())
+    await update.message.reply_text(vachanamrut, reply_markup=main_buttons())
 
-# Callback query handler
+
 async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
 
-    # if query.data == 'hello':
-    #     # Send a new message (preserve original)
-    #     await query.message.chat.send_message("Hello there!", reply_markup=get_main_keyboard())
-
     if query.data == 'defination':
-        # Edit the original message in-place (replace both text and buttons)
-        # await query.edit_message_text("Hi there!", reply_markup=get_secondary_keyboard())
-        # change the buttons without changing the text
-        await query.edit_message_reply_markup(reply_markup=get_secondary_keyboard())
-
-    elif query.data == 'definations from this vachanamrut':
-        await query.edit_message_reply_markup(reply_markup=get_third_keyboard())
+        await query.edit_message_reply_markup(reply_markup=secondary_buttons())
+    elif query.data == 'definations from this vachanamrut' or 'more' in query.data:
+        await query.edit_message_reply_markup(reply_markup=defination_buttons(query.data))
     elif query.data == 'search any vachanamrut definations':
         await query.message.reply_text("send us the word that you want to get the definition of.\nNOTE: you must send the word alone")
     elif query.data == 'back':
-        await query.edit_message_reply_markup(reply_markup=get_main_keyboard())
+        await query.edit_message_reply_markup(reply_markup=main_buttons())
     elif query.data in definations:
         await query.message.reply_text(definations[query.data])
     else:
@@ -83,18 +80,35 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("Sorry, no definition found for that word.")
 
 
-
 with open("definations.txt","r") as file:
     for line in file:
         line = line.split(":")
         definations[line[0].lower()] = line[1]
+
 
 for word in vachanamrut.split():
     word = word.translate(str.maketrans('', '', string.punctuation)).lower()
     if word in definations:
         vachanamrut_definations.append(word)
 
-# Bot setup
+
+keyboard = []
+row = []
+for i,key in enumerate(vachanamrut_definations):
+    row.append(InlineKeyboardButton(key, callback_data=key))
+    if (i+1) % 2 == 0:
+        keyboard.append(row)
+        row = []
+    elif i+1 == len(vachanamrut_definations):
+        buttons.append([row])
+        row = []
+        keyboard = []
+    if (i+1)%10 == 0:
+        buttons.append(keyboard)
+        row = []
+        keyboard = []
+
+
 app = Application.builder().token(token).build()
 app.add_handler(CommandHandler("start", start))
 app.add_handler(CallbackQueryHandler(button))
